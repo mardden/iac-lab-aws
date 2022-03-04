@@ -1,6 +1,6 @@
 # Sobre
 
-Lab em IaC para testar as seguintes tecnologias em cloud AWS:
+Lab IaC para testar as seguintes tecnologias em cloud AWS:
 
 * terraform;
 * packer;
