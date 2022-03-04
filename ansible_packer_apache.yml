@@ -1,0 +1,90 @@
+---
+- hosts: all
+  become: yes
+  remote_user: ubuntu
+  tasks:
+  - name: Instalando unzip
+    apt:
+      name: unzip
+      state: latest
+      update_cache: yes
+
+  - name: criar usuario consul, grupo consul
+    user:
+      name: consul
+      state: present
+      shell: /bin/false
+      system: yes
+      createhome: no
+      home: /etc/consul.d
+
+  - name: criar diretorio /etc/consul.d
+    ansible.builtin.file:
+      path: /etc/consul.d
+      state: directory
+      mode: '0755'
+
+  - name: criar diretorio /var/lib/consul.d
+    ansible.builtin.file:
+      path: /var/lib/consul.d
+      state: directory
+      mode: '0755'
+
+  - name: mudar permissão /var/lib/consul.d
+    ansible.builtin.file:
+      path: /var/lib/consul.d
+      state: directory
+      recurse: yes
+      owner: consul
+      group: consul
+
+  - name: instalar consul
+    unarchive:
+      src: https://releases.hashicorp.com/consul/1.9.3/consul_1.9.3_linux_amd64.zip
+      dest: /usr/bin
+      remote_src: True
+
+  - name: Copiando consul.service
+    copy:
+      src: configs/consul_slave.service
+      dest: /usr/lib/systemd/system/consul.service
+
+  - name: Copiando consul.hlc (template)
+    copy:
+      src: configs/consul_slave.hcl.j2
+      dest: /etc/consul.d/consul.hcl
+
+  - name: Copiando consul webserver json 
+    copy:
+      src: configs/consul_webserver_slave.json
+      dest: /etc/consul.d/webserver.json
+
+  - name: Deixar serviço parado (iniciar via terraform no provisionamento)
+    service:
+      name: consul
+      state: stopped
+      enabled: no
+
+  - name: Instalando o apache
+    apt:
+      name: apache2
+      state: latest
+      update_cache: yes
+
+  - name: Deixar serviço parado (iniciar via terraform no provisionamento)
+    service:
+      name: apache2
+      state: stopped
+      enabled: no
+
+  - name: Copiando index.html personalizado
+    copy:
+      src: configs/index.html.j2
+      dest: /var/www/html/index.html
+
+#  - name: teste find replace
+#    ansible.builtin.replace:
+#     path: /root/teste.txt
+#     regexp: '_TESTE_'
+#     replace: 'estive aqui'
+

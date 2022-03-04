@@ -1,0 +1,31 @@
+---
+- become: yes
+  hosts: all
+  gather_facts: no
+  name: nginx-install
+  remote_user: ubuntu
+  tasks:
+
+  - name: Wait for system to become reachable
+    wait_for_connection:
+
+  - name: Gather facts for the first time
+    setup:
+
+  - name: consul start e enable
+    service:
+      name: consul
+      state: started
+      enabled: yes
+
+  - name:  nginx start e enable
+    service:
+      name: nginx
+      state: started
+      enabled: yes
+      
+  - name: TESTE index.html
+    ansible.builtin.replace:
+     path: /var/www/html/index.html
+     regexp: '_IP_CONSUL_SERVER_'
+     replace: "{{ IP }}"

@@ -1,0 +1,16 @@
+{
+   "service": {
+     "name": "webserver",
+     "tags": ["tagwebserver"],
+     "port": 80,
+     "check": {
+       "id": "apache",
+       "name": "apache server",
+       "http": "http://localhost",
+       "method": "GET",
+       "interval": "10s",
+       "timeout": "1s"
+     }
+    }
+}
+

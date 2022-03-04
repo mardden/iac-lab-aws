@@ -1,0 +1,42 @@
+---
+- become: yes
+  hosts: all
+  gather_facts: no
+  name: apache-install
+  remote_user: ubuntu
+  tasks:
+
+#  - name: Copiando consul.service
+#    copy:
+#      src: teste.txt
+#      dest: /root/teste.txt
+
+  - name: Wait for system to become reachable
+    wait_for_connection:
+
+  - name: Gather facts for the first time
+    setup:
+
+  - name: /etc/consul.d/consul.hcl Adicionar ip do master
+    ansible.builtin.replace:
+     path: /etc/consul.d/consul.hcl
+     regexp: '_IP_CONSUL_SERVER_'
+     replace: "{{ IP_PRIVATE }}"
+
+  - name: Apache start e enable
+    service:
+      name: apache2
+      state: started
+      enabled: yes
+
+  - name: Consul client start e enable
+    service:
+      name: consul
+      state: started
+      enabled: yes
+      
+  - name: TESTE index.html
+    ansible.builtin.replace:
+     path: /var/www/html/index.html
+     regexp: '_IP_CONSUL_SERVER_'
+     replace: "{{ IP }}"
